@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login , logout,authenticate
 from django.http import HttpResponse
 from django.db import IntegrityError
+from .forms import TaskForm
+from .models import Task
 # Create your views here.
 
 def signup(request):
@@ -34,7 +36,8 @@ def home(request):
     return render(request, 'home.html')
 
 def tasks(request):
-    return render(request, 'tasks.html')
+    tasks = Task.objects.filter(user=request.user)
+    return render(request, 'tasks.html',{"tasks":tasks})
 
 
 def signout(request):
@@ -51,3 +54,14 @@ def signin(request):
         else:
             login(request,user)
             return redirect('tasks')
+
+def createTask(request):
+    if request.method=='GET':
+        return render(request, 'create_Task.html',{"form":TaskForm()})
+    else:
+        try:
+            newtask = Task.objects.create(title=request.POST['title'],description=request.POST['description'],important=bool(request.POST.get('important', False)),user=request.user)
+            newtask.save()
+            return redirect('tasks')
+        except ValueError:
+            return render(request, 'create_Task.html',{"form":TaskForm(),"error":"Bad data passed in. Try again."})

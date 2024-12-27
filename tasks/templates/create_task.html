@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<h1>creat task</h1>
+
+<form action="/create_task/" method="POST">
+{% csrf_token %}
+{{form.as_p}}
+<button>
+    create task
+</button>
+</form>
+
+
+{% endblock %}
